@@ -56,9 +56,9 @@ def closestFood(pos, food, walls):
         # if we find a food at this location then exit
         if food[pos_x][pos_y]:
             return dist
-        # otherwise spread out from the location to its neighbours
-        nbrs = Actions.getLegalNeighbors((pos_x, pos_y), walls)
-        for nbr_x, nbr_y in nbrs:
+        # otherwise spread out from the location to its neighbors
+        neighbors = Actions.getLegalNeighbors((pos_x, pos_y), walls)
+        for nbr_x, nbr_y in neighbors:
             fringe.append((nbr_x, nbr_y, dist+1))
     # no food found
     return None
