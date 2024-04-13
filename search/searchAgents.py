@@ -112,13 +112,13 @@ class SearchAgent(Agent):
         state: a GameState object (pacman.py)
         """
         if self.searchFunction == None: raise Exception("No search function provided for SearchAgent")
-        starttime = time.time()
+        startTime = time.time()
         problem = self.searchType(state) # Makes a new search problem
         self.actions  = self.searchFunction(problem) # Find a path
         if self.actions == None:
             self.actions = []
         totalCost = problem.getCostOfActions(self.actions)
-        print('Path found with total cost of %d in %.1f seconds' % (totalCost, time.time() - starttime))
+        print('Path found with total cost of %d in %.1f seconds' % (totalCost, time.time() - startTime))
         if '_expanded' in dir(problem): print('Search nodes expanded: %d' % problem._expanded)
 
     def getAction(self, state):
@@ -166,7 +166,7 @@ class PositionSearchProblem(search.SearchProblem):
             print('Warning: this does not look like a regular search maze')
 
         # For display purposes
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
+        self._visited, self._visitedList, self._expanded = {}, [], 0 # DO NOT CHANGE
 
     def getStartState(self):
         return self.startState
@@ -176,11 +176,11 @@ class PositionSearchProblem(search.SearchProblem):
 
         # For display purposes only
         if isGoal and self.visualize:
-            self._visitedlist.append(state)
+            self._visitedList.append(state)
             import __main__
             if '_display' in dir(__main__):
                 if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
-                    __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
+                    __main__._display.drawExpandedCells(self._visitedList) #@UndefinedVariable
 
         return isGoal
 
@@ -200,9 +200,9 @@ class PositionSearchProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = state
             dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
+            nextX, nextY = int(x + dx), int(y + dy)
+            if not self.walls[nextX][nextY]:
+                nextState = (nextX, nextY)
                 cost = self.costFn(nextState)
                 successors.append( ( nextState, action, cost) )
 
@@ -210,7 +210,7 @@ class PositionSearchProblem(search.SearchProblem):
         self._expanded += 1 # DO NOT CHANGE
         if state not in self._visited:
             self._visited[state] = True
-            self._visitedlist.append(state)
+            self._visitedList.append(state)
 
         return successors
 
@@ -322,8 +322,8 @@ class CornersProblem(search.SearchProblem):
             # Here's a code snippet for figuring out whether a new position hits a wall:
             #   x,y = currentPosition
             #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            #   nextX, nextY = int(x + dx), int(y + dy)
+            #   hitsWall = self.walls[nextX][nextY]
 
             "*** YOUR CODE HERE ***"
 
@@ -398,11 +398,11 @@ class FoodSearchProblem:
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = state[0]
             dx, dy = Actions.directionToVector(direction)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
+            nextX, nextY = int(x + dx), int(y + dy)
+            if not self.walls[nextX][nextY]:
                 nextFood = state[1].copy()
-                nextFood[nextx][nexty] = False
-                successors.append( ( ((nextx, nexty), nextFood), direction, 1) )
+                nextFood[nextX][nextY] = False
+                successors.append( ( ((nextX, nextY), nextFood), direction, 1) )
         return successors
 
     def getCostOfActions(self, actions):
@@ -512,7 +512,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         self.walls = gameState.getWalls()
         self.startState = gameState.getPacmanPosition()
         self.costFn = lambda x: 1
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
+        self._visited, self._visitedList, self._expanded = {}, [], 0 # DO NOT CHANGE
 
     def isGoalState(self, state: Tuple[int, int]):
         """
