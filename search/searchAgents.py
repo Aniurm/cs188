@@ -26,7 +26,6 @@ description.
 Please only change the parts of the file you are asked to.  Look for the lines
 that say
 
-"*** YOUR CODE HERE ***"
 
 The parts you fill in start about 3/4 of the way down.  Follow the project
 description for details.
@@ -295,15 +294,14 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return (self.startingPosition, tuple(self.corners))
+
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return len(state[1]) == 0
 
     def getSuccessors(self, state: Any):
         """
@@ -319,13 +317,17 @@ class CornersProblem(search.SearchProblem):
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextX, nextY = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextX][nextY]
-
-            "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            corners = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextX, nextY = int(x + dx), int(y + dy)
+            if not self.walls[nextX][nextY]:
+                nextCorners = []
+                for corner in corners:
+                    if (nextX, nextY) != corner:
+                        nextCorners.append(corner)
+                
+                successors.append((((nextX, nextY), tuple(nextCorners)), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
