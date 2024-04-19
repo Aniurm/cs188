@@ -445,6 +445,21 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+def closestPoint(position: Tuple[int, int], points: List[Tuple[int, int]]) -> Tuple[Tuple[int, int], int]:
+    """
+    Given a position and a list of points, return the closest point from the list
+    to the given position.
+    """
+    closest_point = None
+    closest_distance = float('inf')
+    for point in points:
+        distance = util.manhattanDistance(position, point)
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_point = point
+
+    return closest_point, closest_distance
+
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -474,18 +489,21 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    # Maximum Food Distance
-    food_list = foodGrid.asList()
-    if not food_list:
+    foodList = foodGrid.asList()
+    if not foodList:
         return 0
-    max_distance = 0
-    for food in food_list:
-        distance = util.manhattanDistance(position, food)
-        if distance > max_distance:
-            max_distance = distance
 
-    return max_distance
+    # Ref:
+    # https://stackoverflow.com/questions/9994913/pacman-what-kinds-of-heuristics-are-mainly-used
+    closest_food, _ = closestPoint(position, foodList)
+    real_distance = mazeDistance(position, closest_food, problem.startingGameState)
+    locality = 0
+    for food in foodList:
+        if food[0] != closest_food[0] and food[1] != closest_food[1]:
+            locality += 1
 
+    return real_distance + locality
+        
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):
