@@ -369,13 +369,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     position = state[0]
     remaining_corners = list(state[1])
     while remaining_corners:
-        closest_corner = None
-        closest_distance = float('inf')
-        for corner in remaining_corners:
-            distance = util.manhattanDistance(position, corner)
-            if distance < closest_distance:
-                closest_distance = distance
-                closest_corner = corner
+        closest_corner, closest_distance = closestPoint(position, remaining_corners)
         heuristic += closest_distance
         position = closest_corner
         remaining_corners.remove(closest_corner)
