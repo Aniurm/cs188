@@ -71,11 +71,34 @@ class ReflexAgent(Agent):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
+        newFoodList = newFood.asList()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        score =  successorGameState.getScore()
+
+        # Calculate the distance to the closest food
+        minFoodDistance = float('inf')
+        for food in newFoodList:
+            minFoodDistance = min(minFoodDistance, util.manhattanDistance(newPos, food))
+        score += 1.0 / minFoodDistance
+
+        # Calculate the effect of ghost proximity
+        for ghostState, scaredTime in zip(newGhostStates, newScaredTimes):
+            ghostPos = ghostState.getPosition()
+            distanceToGhost = util.manhattanDistance(newPos, ghostPos)
+            if scaredTime > 0:
+                score += 10.0 / distanceToGhost
+            else:
+                # If the ghost is not scared, approaching is bad
+                if distanceToGhost <= 1:
+                    score -= 20  # Large penalty for being too close to a live ghost
+
+        # Discourage stopping
+        if action == Directions.STOP:
+            score -= 10
+
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
