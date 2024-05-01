@@ -280,7 +280,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
-
     def expValue(self, gameState: GameState, agentIndex: int, depth: int):
         score = 0
         legalActions = gameState.getLegalActions(agentIndex)
@@ -341,13 +340,46 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
-    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-    evaluation function (question 5).
+    A more refined evaluation function for Pacman's current game state, focusing on maximizing
+    food consumption while minimizing risk from ghosts.
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: This function evaluates states by considering the distance to the nearest food,
+    the threat level of nearby ghosts, and the current score. It rewards states that are close to food,
+    have no immediate ghost threats, or have high scores from eating food and power pellets.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    if currentGameState.isWin():
+        return float('inf')  # Maximize score for winning state
+    elif currentGameState.isLose():
+        return -float('inf')  # Minimize score for losing state
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newFoodList = newFood.asList()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    # Basic score from game state
+    score = currentGameState.getScore()
+
+    # Calculate the distance to the closest food
+    minFoodDistance = float('inf')
+    for food in newFoodList:
+        minFoodDistance = min(minFoodDistance, util.manhattanDistance(newPos, food))
+    if minFoodDistance != float('inf'):
+        score += 1.0 / minFoodDistance
+
+    # Calculate the effect of ghost proximity
+    for ghostState, scaredTime in zip(newGhostStates, newScaredTimes):
+        ghostPos = ghostState.getPosition()
+        distanceToGhost = util.manhattanDistance(newPos, ghostPos)
+        if scaredTime > 0:
+            score += 10.0 / distanceToGhost  # Encourage getting closer to scared ghosts
+        else:
+            if distanceToGhost <= 1:
+                score -= 100  # Large penalty for being too close to a dangerous ghost
+
+    return score
+
 
 # Abbreviation
 better = betterEvaluationFunction
