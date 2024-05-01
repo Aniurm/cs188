@@ -158,8 +158,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Get the legal actions for the pacman
+        legalActions = gameState.getLegalActions(0)
+        # Initialize the best score and best action
+        bestScore = float('-inf')
+        bestAction = None
+        # Loop through all the legal actions
+        for action in legalActions:
+            # Get the successor game state
+            successorGameState = gameState.generateSuccessor(0, action)
+            # Get the score for the successor game state
+            score = self.minimax(successorGameState, 1, 1)
+            # Update the best score and best action
+            if score > bestScore:
+                bestScore = score
+                bestAction = action
+
+        return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
