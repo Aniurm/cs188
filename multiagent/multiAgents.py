@@ -134,6 +134,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    def maxValue(self, gameState: GameState, agentIndex: int, depth: int):
+        score = float('-inf')
+        legalActions = gameState.getLegalActions(agentIndex)
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            score = max(score, self.minimax(successorGameState, agentIndex + 1, depth))
+        
+        return score
+    
+    def minValue(self, gameState: GameState, agentIndex: int, depth: int):
+        score = float('inf')
+        legalActions = gameState.getLegalActions(agentIndex)
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            score = min(score, self.minimax(successorGameState, agentIndex + 1, depth))
+        
+        return score
+
+    def minimax(self, gameState: GameState, agentIndex: int, depth: int):
+        # Get the number of agents
+        numAgents = gameState.getNumAgents()
+        agentIndex = agentIndex % numAgents
+        if agentIndex == 0:
+            depth += 1
+
+        # Check if the game state is a terminal state
+        if gameState.isWin() or gameState.isLose() or depth > self.depth:
+            return self.evaluationFunction(gameState)
+        
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)
+        else:
+            return self.minValue(gameState, agentIndex, depth)
 
     def getAction(self, gameState: GameState):
         """
