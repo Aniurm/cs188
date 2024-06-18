@@ -102,9 +102,11 @@ class RegressionModel(Module):
     """
     def __init__(self):
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
         super().__init__()
-
+        self.hidden1 = Linear(1, 50)
+        self.hidden2 = Linear(50, 50)
+        self.output = Linear(50, 1)
+        self.relu = relu
 
 
     def forward(self, x):
@@ -116,7 +118,9 @@ class RegressionModel(Module):
         Returns:
             A node with shape (batch_size x 1) containing predicted y-values
         """
-        "*** YOUR CODE HERE ***"
+        x = self.relu(self.hidden1(x))
+        x = self.relu(self.hidden2(x))
+        return self.output(x)
 
     
     def get_loss(self, x, y):
@@ -129,8 +133,7 @@ class RegressionModel(Module):
                 to be used for training
         Returns: a tensor of size 1 containing the loss
         """
-        "*** YOUR CODE HERE ***"
- 
+        return mse_loss(self.forward(x), y)
   
 
     def train(self, dataset):
@@ -147,8 +150,22 @@ class RegressionModel(Module):
             dataset: a PyTorch dataset object containing data to be trained on
             
         """
-        "*** YOUR CODE HERE ***"
+        num_epochs = 50000
+        learning_rate = 0.001
+        batch_size = 32
 
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        optimizer = optim.SGD(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            for sample in dataloader:
+                optimizer.zero_grad()
+                loss = self.get_loss(sample['x'], sample['label'])
+                loss.backward()
+                optimizer.step()
+
+            if epoch % 100 == 0:
+                print(f'Epoch {epoch}, Loss: {loss.item()}')
 
             
 
