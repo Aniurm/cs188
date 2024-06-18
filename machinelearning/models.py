@@ -193,10 +193,16 @@ class DigitClassificationModel(Module):
         # Initialize your model parameters here
         super().__init__()
         input_size = 28 * 28
+        hidden_size1 = 512
+        hidden_size2 = 256
+        hidden_size3 = 128
         output_size = 10
-        "*** YOUR CODE HERE ***"
 
-
+        self.hidden1 = Linear(input_size, hidden_size1)
+        self.hidden2 = Linear(hidden_size1, hidden_size2)
+        self.hidden3 = Linear(hidden_size2, hidden_size3)
+        self.output = Linear(hidden_size3, output_size)
+        self.relu = relu
 
     def run(self, x):
         """
@@ -212,8 +218,10 @@ class DigitClassificationModel(Module):
             A node with shape (batch_size x 10) containing predicted scores
                 (also called logits)
         """
-        """ YOUR CODE HERE """
-
+        x = self.relu(self.hidden1(x))
+        x = self.relu(self.hidden2(x))
+        x = self.relu(self.hidden3(x))
+        return self.output(x)
 
     def get_loss(self, x, y):
         """
@@ -228,15 +236,29 @@ class DigitClassificationModel(Module):
             y: a node with shape (batch_size x 10)
         Returns: a loss tensor
         """
-        """ YOUR CODE HERE """
-
+        return cross_entropy(self.run(x), y)
         
-
-    def train(self, dataset):
+    def train(self, dataset, num_epochs=100, batch_size=64, learning_rate=0.01):
         """
         Trains the model.
         """
-        """ YOUR CODE HERE """
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        optimizer = optim.SGD(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            for sample in dataloader:
+                optimizer.zero_grad()
+                loss = self.get_loss(sample['x'], sample['label'])
+                loss.backward()
+                optimizer.step()
+
+            validation_accuracy = dataset.get_validation_accuracy()
+            print(f'Epoch {epoch}, Loss: {loss.item()}, Validation Accuracy: {validation_accuracy}')
+
+            if validation_accuracy >= 0.98:
+                print(f'Training stopped at epoch {epoch} with validation accuracy {validation_accuracy}')
+                break
+
 
 
 
