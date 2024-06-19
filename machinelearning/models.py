@@ -279,7 +279,7 @@ class LanguageIDModel(Module):
         self.languages = ["English", "Spanish", "Finnish", "Dutch", "Polish"]
         super(LanguageIDModel, self).__init__()
 
-        self.hidden_size = 128
+        self.hidden_size = 256
         self.output_size = len(self.languages)
 
         # Initialize the initial linear layer for the first character
@@ -347,7 +347,7 @@ class LanguageIDModel(Module):
         return cross_entropy(self.run(xs), y)
 
 
-    def train(self, dataset, num_epochs=1000, batch_size=64, learning_rate=0.001):
+    def train(self, dataset, num_epochs=100, batch_size=64, learning_rate=0.005):
         """
         Trains the model.
 
