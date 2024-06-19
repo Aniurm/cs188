@@ -278,9 +278,19 @@ class LanguageIDModel(Module):
         self.num_chars = 47
         self.languages = ["English", "Spanish", "Finnish", "Dutch", "Polish"]
         super(LanguageIDModel, self).__init__()
-        "*** YOUR CODE HERE ***"
-        # Initialize your model parameters here
 
+        self.hidden_size = 128
+        self.output_size = len(self.languages)
+
+        # Initialize the initial linear layer for the first character
+        self.f_initial = Linear(self.num_chars, self.hidden_size)
+
+        # Initialize the linear layer for recurrent function
+        self.Wx = Linear(self.num_chars, self.hidden_size)
+        self.Wh = Linear(self.hidden_size, self.hidden_size)
+
+        # Output layer to map hidden state to output
+        self.output_layer = Linear(self.hidden_size, self.output_size)
 
     def run(self, xs):
         """
@@ -311,7 +321,13 @@ class LanguageIDModel(Module):
             A node with shape (batch_size x 5) containing predicted scores
                 (also called logits)
         """
-        "*** YOUR CODE HERE ***"
+        # Initialize hidden state
+        h = relu(self.f_initial(xs[0]))
+
+        for i in range (1, len(xs)):
+            h = relu(self.Wx(xs[i]) + self.Wh(h))
+
+        return self.output_layer(h)
 
     
     def get_loss(self, xs, y):
@@ -328,10 +344,10 @@ class LanguageIDModel(Module):
             y: a node with shape (batch_size x 5)
         Returns: a loss node
         """
-        "*** YOUR CODE HERE ***"
+        return cross_entropy(self.run(xs), y)
 
 
-    def train(self, dataset):
+    def train(self, dataset, num_epochs=1000, batch_size=64, learning_rate=0.001):
         """
         Trains the model.
 
@@ -345,7 +361,21 @@ class LanguageIDModel(Module):
 
         For more information, look at the pytorch documentation of torch.movedim()
         """
-        "*** YOUR CODE HERE ***"
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+
+        for epoch in range(num_epochs):
+            total_loss = 0.0
+            for sample in dataloader:
+                xs, y = sample['x'], sample['label']
+                xs = movedim(xs, 0, 1)
+                optimizer.zero_grad()
+                loss = self.get_loss(xs, y)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+            
+            print(f'Epoch {epoch}, Loss: {total_loss/len(dataloader)}')
 
         
 
